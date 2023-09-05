@@ -4,7 +4,7 @@
       <h3 class="title">后台管理系统</h3>
       <el-form-item>
         <el-input type="text" placeholder="账号" size="large">
-          <template #prefix>
+          <template #prefix :size="15">
             <el-icon class="el-input__icon"><UserFilled /></el-icon>
           </template>
         </el-input>
@@ -17,8 +17,14 @@
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-input type="text" placeholder="验证码" style="width: 63%" />
-        <div class="login-code"><img src="" alt="" />图片</div>
+        <el-input type="text" placeholder="验证码" style="width: 63%">
+          <template #prefix>
+            <el-icon class="el-input__icon"><Discount /></el-icon>
+          </template>
+        </el-input>
+        <div class="login-code">
+          <img :src="codeUrl" class="login-code-img" @click="getCode" />
+        </div>
       </el-form-item>
       <el-form-item>
         <el-checkbox
@@ -39,7 +45,20 @@ export default {
   name: "login",
 };
 </script>
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+import { getCodeImg } from "@/api/login.js";
+//数据
+const codeUrl = ref("");
+//方法
+function getCode() {
+  getCodeImg().then((res) => {
+    // console.log(res);
+    codeUrl.value = "data:image/gif;base64," + res.data.img;
+  });
+}
+getCode();
+</script>
 <style lang="scss">
 .login {
   display: flex;
@@ -55,6 +74,12 @@ export default {
   background: #ffffff;
   padding: 25px 25px 5px 25px;
 }
+.el-input {
+  height: 40px;
+  input {
+    height: 40px;
+  }
+}
 .title {
   text-align: center;
   color: #707070;
@@ -62,5 +87,11 @@ export default {
 }
 .login-code {
   width: 33%;
+  height: 40px;
+  .login-code-img {
+    height: 40px;
+    padding-left: 10px;
+    cursor: pointer;
+  }
 }
 </style>
