@@ -6,5 +6,8 @@ const service = axios.create({
   // 超时
   timeout: 10000,
 });
-
+//响应拦截器
+// service.interceptors.response.use((res) => {
+//   return res.data;
+// });
 export default service;

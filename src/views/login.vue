@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <el-form class="login-form">
-      <h3 class="title">后台管理系统</h3>
+      <h3 class="title">通用后台管理系统</h3>
       <el-form-item>
         <el-input type="text" placeholder="账号" size="large">
           <template #prefix :size="15">
@@ -17,7 +17,12 @@
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-input type="text" placeholder="验证码" style="width: 63%">
+        <el-input
+          type="text"
+          placeholder="验证码"
+          style="width: 63%"
+          v-if="captchaEnabled"
+        >
           <template #prefix>
             <el-icon class="el-input__icon"><Discount /></el-icon>
           </template>
@@ -33,11 +38,18 @@
         ></el-checkbox>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" style="width: 100%" size="large"
+        <el-button
+          type="primary"
+          style="width: 100%"
+          size="large"
+          @click="handleLogin"
           >登 录</el-button
         >
       </el-form-item>
     </el-form>
+    <div class="el-login-footer">
+      <span>Copyright © 2023- All Rights Reserved.</span>
+    </div>
   </div>
 </template>
 <script>
@@ -47,17 +59,29 @@ export default {
 </script>
 <script setup>
 import { ref } from "vue";
-import { getCodeImg } from "@/api/login.js";
+import { getCodeImg, login } from "@/api/login.js";
 //数据
 const codeUrl = ref("");
+// 验证码开关
+const captchaEnabled = ref(true);
 //方法
 function getCode() {
   getCodeImg().then((res) => {
     // console.log(res);
+    captchaEnabled.value =
+      res.captchaEnabled === undefined ? true : res.captchaEnabled;
+    if (captchaEnabled.value) {
+    }
     codeUrl.value = "data:image/gif;base64," + res.data.img;
   });
 }
 getCode();
+//登录
+function handleLogin() {
+  login().then((res) => {
+    console.log("gsdres", res);
+  });
+}
 </script>
 <style lang="scss">
 .login {
@@ -93,5 +117,17 @@ getCode();
     padding-left: 10px;
     cursor: pointer;
   }
+}
+.el-login-footer {
+  height: 40px;
+  line-height: 40px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+  color: #fff;
+  font-family: Arial;
+  font-size: 12px;
+  letter-spacing: 1px;
 }
 </style>

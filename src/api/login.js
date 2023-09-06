@@ -7,3 +7,17 @@ export function getCodeImg() {
     method: "get",
   });
 }
+// 登录
+export function login(username, password, code, uuid) {
+  const data = {
+    username,
+    password,
+    code,
+    uuid,
+  };
+  return request({
+    url: "/login",
+    method: "post",
+    data: data,
+  });
+}
