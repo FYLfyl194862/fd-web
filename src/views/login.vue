@@ -1,27 +1,43 @@
 <template>
   <div class="login">
-    <el-form class="login-form">
+    <el-form
+      class="login-form"
+      :rules="loginRules"
+      ref="loginRef"
+      :model="loginForm"
+    >
       <h3 class="title">通用后台管理系统</h3>
-      <el-form-item>
-        <el-input type="text" placeholder="账号" size="large">
+      <el-form-item prop="username">
+        <el-input
+          type="text"
+          placeholder="账号"
+          size="large"
+          v-model="loginForm.username"
+        >
           <template #prefix :size="15">
             <el-icon class="el-input__icon"><UserFilled /></el-icon>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item>
-        <el-input type="password" placeholder="密码" size="large">
+      <el-form-item prop="password">
+        <el-input
+          type="password"
+          placeholder="密码"
+          size="large"
+          v-model="loginForm.password"
+        >
           <template #prefix>
             <el-icon class="el-input__icon"><Lock /></el-icon>
           </template>
         </el-input>
       </el-form-item>
-      <el-form-item>
+      <el-form-item prop="code">
         <el-input
           type="text"
           placeholder="验证码"
           style="width: 63%"
           v-if="captchaEnabled"
+          v-model="loginForm.code"
         >
           <template #prefix>
             <el-icon class="el-input__icon"><Discount /></el-icon>
@@ -33,6 +49,7 @@
       </el-form-item>
       <el-form-item>
         <el-checkbox
+          v-model="loginForm.rememberMe"
           label="记住密码"
           style="margin: 0px 0px 25px 0px"
         ></el-checkbox>
@@ -58,12 +75,25 @@ export default {
 };
 </script>
 <script setup>
-import { ref } from "vue";
+import { ref, onBeforeMount, getCurrentInstance } from "vue";
 import { getCodeImg, login } from "@/api/login.js";
 //数据
 const codeUrl = ref("");
 // 验证码开关
 const captchaEnabled = ref(true);
+const loginForm = ref({
+  username: "",
+  password: "",
+  code: "",
+  rememberMe: false,
+  uuid: "",
+});
+const loginRules = {
+  username: [{ required: true, message: "请输入您的账号", trigger: "blur" }],
+  password: [{ required: true, message: "请输入您的密码", trigger: "blur" }],
+  code: [{ required: true, message: "请输入您的验证码", trigger: "change" }],
+};
+const { proxy } = getCurrentInstance();
 //方法
 function getCode() {
   getCodeImg().then((res) => {
@@ -73,13 +103,23 @@ function getCode() {
     if (captchaEnabled.value) {
     }
     codeUrl.value = "data:image/gif;base64," + res.data.img;
+    loginForm.value.uuid = res.data.uuid;
   });
 }
 getCode();
 //登录
 function handleLogin() {
-  login().then((res) => {
-    console.log("gsdres", res);
+  proxy.$refs.loginRef.validate((valid) => {
+    if (valid) {
+      console.log("gsdvalid", valid);
+      const username = loginForm.value.username;
+      const password = loginForm.value.password;
+      const code = loginForm.value.code;
+      const uuid = loginForm.value.uuid;
+      login(username, password, code, uuid).then((res) => {
+        console.log(res);
+      });
+    }
   });
 }
 </script>
