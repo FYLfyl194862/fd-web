@@ -77,6 +77,7 @@ export default {
 <script setup>
 import { ref, onBeforeMount, getCurrentInstance } from "vue";
 import { getCodeImg, login } from "@/api/login.js";
+import useUserStore from "@/store/modules/user";
 //数据
 const codeUrl = ref("");
 // 验证码开关
@@ -94,7 +95,8 @@ const loginRules = {
   code: [{ required: true, message: "请输入您的验证码", trigger: "change" }],
 };
 const { proxy } = getCurrentInstance();
-//方法
+const userStore = useUserStore();
+//获取验证码
 function getCode() {
   getCodeImg().then((res) => {
     // console.log(res);
@@ -102,8 +104,8 @@ function getCode() {
       res.captchaEnabled === undefined ? true : res.captchaEnabled;
     if (captchaEnabled.value) {
     }
-    codeUrl.value = "data:image/gif;base64," + res.data.img;
-    loginForm.value.uuid = res.data.uuid;
+    codeUrl.value = "data:image/gif;base64," + res.img;
+    loginForm.value.uuid = res.uuid;
   });
 }
 getCode();
@@ -111,13 +113,9 @@ getCode();
 function handleLogin() {
   proxy.$refs.loginRef.validate((valid) => {
     if (valid) {
-      console.log("gsdvalid", valid);
-      const username = loginForm.value.username;
-      const password = loginForm.value.password;
-      const code = loginForm.value.code;
-      const uuid = loginForm.value.uuid;
-      login(username, password, code, uuid).then((res) => {
-        console.log(res);
+      // 调用action的登录方法
+      userStore.login(loginForm.value).then((res) => {
+        console.log("gsdres2", res);
       });
     }
   });
